@@ -35,6 +35,35 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+//add authentication midddleware to authenticate before accessing data from server
+function auth(req, res, next) {
+  console.log(req.headers);
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    const err = new Error('You are not authenticated!');
+    //tells server to request error
+    res.setHeader('WWWW-Authenticate', 'Basic');
+    err.status = 401;
+    return next(err);
+  }
+
+  //RESEARCH THIS
+  //this takes the code from authorization header, and decodes it to a username and password, puts it into an array, and then returns it to a string ,and splits both username and password -- CHECK TO SEE IF TRUE
+  const auth = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
+  const user = auth[0];
+  const pass = auth[1];
+  if(user === 'admin' && pass === 'password') {
+    return next(); //authorized
+  } {
+    const err = new Error('You are not authenticated!');
+    res.setHeader('WWW-Authenticate', 'Basic')
+  }
+
+}
+
+app.use(auth);
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
