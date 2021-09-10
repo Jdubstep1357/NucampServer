@@ -21,8 +21,6 @@ const mongoose = require('mongoose');
 
 const url = 'mongodb://localhost:27017/nucampsite';
 const connect = mongoose.connect(url, {
-  useCreateIndex: true,
-  useFindAndModify: false,
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
@@ -52,37 +50,22 @@ app.use(session ({
   store: new FileStore()
 }))
 
+//the reason why these are used before auth function is due to users accessing router before authentication so before accessing account are prompted to create one
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+
 //add authentication midddleware to authenticate before accessing data from server
 function auth(req, res, next) {
   console.log(req.session);
       //if cookie is not properly signed
     if (!req.session.user) {
-    
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
       const err = new Error('You are not authenticated!');
       //tells server to request error
-      res.setHeader('WWWW-Authenticate', 'Basic');
       err.status = 401;
       return next(err);
-    }
-
-    //Instances of the Buffer class are similar to arrays of integers but correspond to fixed-sized, raw memory allocations outside the V8 heap.
-    //this takes the code from authorization header, and decodes it to a username and password, puts it into an array, and then returns it to a string ,and splits both username and password
-    const auth = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-    const user = auth[0];
-    const pass = auth[1];
-    if(user === 'admin' && pass === 'password') {
-      req.session.user = 'admin';
-      return next(); //authorized
-    } else {
-      const err = new Error('You are not authenticated!');
-      res.setHeader('WWW-Authenticate', 'Basic');
-      err.status = 401;
-      return next(err);
-    }
+   
   } else {
-    if (req.session.user === 'admin') {
+    if (req.session.user === 'authenticated') {
       return next();
     } else {
         const err = new Error('You are not authenticated!');
@@ -96,8 +79,7 @@ app.use(auth);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+
 app.use('/campsites', campsiteRouter);
 app.use('/promotions', promotionRouter);
 app.use('/partners', partnerRouter);
