@@ -11,10 +11,9 @@ const userSchema = new Schema({
         type: String,
         default: ''
     },
-    username: {
-        type: String,
-        required: true,
-        unique: true
+    admin: {
+        type: Boolean,
+        default: false,
     }
 });
 

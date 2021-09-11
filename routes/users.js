@@ -3,11 +3,19 @@ const User = require('../models/user');
 const passport = require('passport');
 const authenticate = require('../authenticate');
 
+
 const router = express.Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+router.get('/', authenticate.verifyUser,  authenticate.verifyAdmin, function(req, res, next) {
+    //Users.find() where data is found in server
+  Users.find()
+  .then(users => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json(users);
+  }) 
+  .catch(err => next(err));
+  
 });
 
 //allows user to register on website
