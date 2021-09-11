@@ -9,6 +9,8 @@ const session = require('express-session');
 //first class function - function return a function
 //require is returning returned function with session
 const FileStore = require('session-file-store')(session);
+const passport = require('passport');
+const authenticate = require('./authenticate');
 
 
 var indexRouter = require('./routes/index');
@@ -21,6 +23,7 @@ const mongoose = require('mongoose');
 
 const url = 'mongodb://localhost:27017/nucampsite';
 const connect = mongoose.connect(url, {
+
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
@@ -44,11 +47,14 @@ app.use(express.urlencoded({ extended: false }));
 app.use(session ({
   name: 'session-id',
   secret: '12345-67890-09876-54321',
-  saveUnitialized: false,
+  saveUninitialized: false,
   //resave continues to be resaved whenever request is made for session
   resave: false,
   store: new FileStore()
-}))
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 //the reason why these are used before auth function is due to users accessing router before authentication so before accessing account are prompted to create one
 app.use('/', indexRouter);
@@ -56,22 +62,16 @@ app.use('/users', usersRouter);
 
 //add authentication midddleware to authenticate before accessing data from server
 function auth(req, res, next) {
-  console.log(req.session);
+  console.log(req.user);
       //if cookie is not properly signed
-    if (!req.session.user) {
+    if (!req.user) {
       const err = new Error('You are not authenticated!');
       //tells server to request error
       err.status = 401;
       return next(err);
    
   } else {
-    if (req.session.user === 'authenticated') {
       return next();
-    } else {
-        const err = new Error('You are not authenticated!');
-        err.status = 401;
-        return next(err);
-    }
   }
 }
 
