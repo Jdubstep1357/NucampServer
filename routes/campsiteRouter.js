@@ -56,7 +56,7 @@ campsiteRouter.route('/:campsiteId')
     res.statusCode = 403;
     res.end(`POST operation not supported on /campsites/${req.params.campsiteId}`);
   })
-  .put(authenticate.verifyUser, authenticate.veryifAdmin, (req, res, next) => {
+  .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Campsite.findByIdAndUpdate(req.params.campsiteId, {
       $set: req.body
     }, { new: true })

@@ -28,7 +28,7 @@ partnerRouter.route('/')
     res.statusCode = 403;
     res.end('PUT operation not supported on /partners');
   })
-  .delete(authenticate.verifyUser, authenticate.veryifyAdmin, (req, res, next) => {
+  .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Partner.deleteMany()
       .then(response => {
         res.statusCode = 200;

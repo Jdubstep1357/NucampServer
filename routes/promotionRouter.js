@@ -52,7 +52,7 @@ promotionRouter.route('/:promotionId')
     res.statusCode = 403;
     res.end(`POST operation not supported on /promotions/${req.params.promotionId}`);
   })
-  .put(authenticate.verifyUser, authenticate.veryifyUser, (req, res, next) => {
+  .put(authenticate.verifyUser, authenticate.verifyUser, (req, res, next) => {
     Promotion.findByIdAndUpdate(req.params.promotionId, {
       $set: req.body
     }, { new: true })
